@@ -20,7 +20,18 @@ COLUMNAS_A_DESCARTAR = [
     "trans_num",
     "dob",
     "unix_time",
+    "cc_num",
+    "first",
+    "last",
+    "street",
 ]
+
+
+def convertir_categoricas(df: pd.DataFrame) -> pd.DataFrame:
+    for col in df.columns:
+        if df[col].dtype == "object":
+            df[col] = df[col].astype("category")
+    return df
 
 
 def cargar_datos() -> pd.DataFrame:
@@ -73,7 +84,7 @@ def entrenar_modelo(X_train: pd.DataFrame, y_train: pd.Series) -> XGBClassifier:
         scale_pos_weight=ratio,
         random_state=42,
         eval_metric="logloss",
-        use_label_encoder=False,
+        enable_categorical=True,
     )
 
     logger.info("Iniciando entrenamiento XGBoost (scale_pos_weight=%.2f)", ratio)
@@ -109,6 +120,8 @@ def main() -> None:
     try:
         df = cargar_datos()
         X_train, X_test, y_train, y_test = split_temporal(df)
+        X_train = convertir_categoricas(X_train)
+        X_test = convertir_categoricas(X_test)
         modelo = entrenar_modelo(X_train, y_train)
         metricas = evaluar_modelo(modelo, X_test, y_test)
         guardar_modelo(modelo)

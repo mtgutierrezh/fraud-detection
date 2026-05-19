@@ -1,0 +1,7 @@
+data/
+logs/
+models/
+.env
+.git
+__pycache__/
+*.pyc

@@ -10,8 +10,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY src/ ./src/
-COPY data/ ./data/
+COPY app.py .
 
-RUN mkdir -p /app/logs /app/data/processed
+RUN mkdir -p /app/logs /app/data/processed /app/models
 
-CMD ["python", "-m", "pytest", "src/"]
+CMD ["python"]
