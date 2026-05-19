@@ -14,4 +14,8 @@ COPY app.py .
 
 RUN mkdir -p /app/logs /app/data/processed /app/models
 
-CMD ["python"]
+# Exponer el puerto por defecto de Streamlit (buena práctica)
+EXPOSE 8501
+
+# Comando para ejecutar la app amarrándola al puerto de Render
+CMD ["sh", "-c", "streamlit run app.py --server.port=${PORT:-8501} --server.address=0.0.0.0"]
