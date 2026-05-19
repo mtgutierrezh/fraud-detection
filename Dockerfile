@@ -12,10 +12,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY src/ ./src/
 COPY app.py .
 
-RUN mkdir -p /app/logs /app/data/processed /app/models
+COPY models/ ./models/
 
-# Exponer el puerto por defecto de Streamlit (buena práctica)
+RUN mkdir -p /app/logs /app/data/processed
+
 EXPOSE 8501
 
-# Comando para ejecutar la app amarrándola al puerto de Render
 CMD ["sh", "-c", "streamlit run app.py --server.port=${PORT:-8501} --server.address=0.0.0.0"]
