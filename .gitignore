@@ -49,5 +49,5 @@ AGENT_CONTEXT.md
 # Docker
 *.tar
 
-# Modelos entrenados
-models/*.joblib
+# Modelos entrenados (se mantiene para probar en Render)
+# models/*.joblib
