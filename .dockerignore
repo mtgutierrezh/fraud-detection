@@ -1,6 +1,5 @@
 data/
 logs/
-models/
 .env
 .git
 __pycache__/
