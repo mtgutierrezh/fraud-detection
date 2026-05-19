@@ -24,22 +24,29 @@ gantt
     Script 03 - Validacion Estructural     :done,    t9, after t8, 1d
     Script 04 - Carga de datos finales     :done,    t10, after t9, 1d
 
-    section Monitoreo y Cierre
+    section Modelamiento y Despliegue
+    Script 05 - Entrenar XGBoost           :done,    t15, 2026-05-17, 1d
+    Desarrollar app Streamlit              :done,    t16, 2026-05-18, 1d
+    Desplegar en Render y actualizar docs  :done,    t17, 2026-05-18, 1d
+
+    section Monitoreo y Documentacion
     Configurar Logs centralizados          :done,    t11, 2026-05-18, 1d
     Definir KPIs y Plan de Escalabilidad   :active,  t12, 2026-05-19, 1d
-
-    section Modelamiento y Despliegue
-    Script 05 - Entrenar XGBoost           :active,  t15, 2026-05-20, 1d
-    Desarrollar app Streamlit              :         t16, 2026-05-21, 1d
-    Desplegar en Render y docs             :         t17, 2026-05-21, 1d
-
-    section Preparacion Final
     Ensamblar Informe Tecnico 10-12 pag    :         t13, 2026-05-19, 2d
-    Preparar y ensayar Demo en vivo        :         t14, 2026-05-21, 1d
 
     section Hitos
     Entrega de entregables                 :milestone, m1, 2026-05-20, 0d
+
+    section Defensa
+    Preparar y ensayar Demo en vivo        :         t14, 2026-05-21, 1d
     Defensa oral 15 min                    :milestone, m2, 2026-05-22, 0d
+```
+
+## Dependencias del Pipeline Core
+
+```
+01_ingestion ──► 02_enmascaramiento ──► 03_validacion ──► 04_loading ──► 05_training
+             └──► 02_limpieza ────────┘
 ```
 
 ## Hitos clave
@@ -47,5 +54,5 @@ gantt
 | Fecha | Hito |
 |-------|------|
 | 2026-05-13 | Inicio del proyecto |
-| 2026-05-20 | Entrega de entregables (informe + codigo + Docker + modelo) |
+| 2026-05-20 | Entrega de entregables (informe + codigo + Docker + modelo + app) |
 | 2026-05-22 | Defensa oral (15 min, 3 integrantes) |
