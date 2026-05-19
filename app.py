@@ -96,8 +96,8 @@ def alinear_columnas(df: pd.DataFrame, feature_cols: list) -> pd.DataFrame:
     return df[feature_cols]
 
 
-st.set_page_config(page_title="Fraud Detection", page_icon="🛡️", layout="centered")
-st.title("🛡️ Detector de Fraude - Pipeline DataOps")
+st.set_page_config(page_title="Fraud Detection", layout="centered")
+st.title("Fraud Detection - Pipeline DataOps")
 st.markdown("Simula una transaccion y el modelo XGBoost predice si es **fraudulenta** o **legitima**.")
 
 modelo, cat_means, feature_cols = cargar_modelo_y_metadata()
@@ -122,7 +122,7 @@ with tab1:
             lat = st.number_input("Latitud", value=40.71, step=0.01, format="%.4f")
             long = st.number_input("Longitud", value=-74.01, step=0.01, format="%.4f")
 
-        submitted = st.form_submit_button("🔍 Predecir", type="primary")
+        submitted = st.form_submit_button("Predecir", type="primary")
 
     if submitted:
         with st.spinner("Calculando features y analizando transaccion..."):
@@ -152,9 +152,9 @@ with tab1:
                     st.metric("Umbral", f"{THRESHOLD:.0%}")
 
                 if pred == 1:
-                    st.error(f"🚨 **FRAUDE DETECTADO** (prob: {proba[1]:.2%} >= umbral {THRESHOLD:.0%})")
+                    st.error(f"FRAUDE DETECTADO (prob: {proba[1]:.2%} >= umbral {THRESHOLD:.0%})")
                 else:
-                    st.success(f"✅ **Transaccion Legitima** (prob: {proba[1]:.2%} < umbral {THRESHOLD:.0%})")
+                    st.success(f"Transaccion Legitima (prob: {proba[1]:.2%} < umbral {THRESHOLD:.0%})")
 
                 with st.expander("Features generadas"):
                     st.dataframe(df, use_container_width=True)
@@ -178,9 +178,8 @@ with tab2:
 
             probas = modelo.predict_proba(df_feat)[:, 1]
             preds = (probas >= THRESHOLD).astype(int)
-
             df_input["prob_fraude"] = probas
-            df_input["prediccion"] = preds.map({1: "FRAUDE", 0: "LEGITIMA"})
+            df_input["prediccion"] = ["FRAUDE" if p == 1 else "LEGITIMA" for p in preds]
 
             st.dataframe(df_input[["prediccion", "prob_fraude"] + list(df_input.columns[:-2])],
                          use_container_width=True)
