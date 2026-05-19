@@ -1,6 +1,6 @@
 ## Carta Gantt (PMBOK/WBS)
 
-Cronograma del proyecto con metodologia hibrida PMBOK/Agile (14 tareas atomicas WBS).
+Cronograma del proyecto con metodologia hibrida PMBOK/Agile (17 tareas atomicas WBS).
 
 ```mermaid
 gantt
@@ -27,6 +27,13 @@ gantt
     section Monitoreo y Cierre
     Configurar Logs centralizados          :done,    t11, 2026-05-18, 1d
     Definir KPIs y Plan de Escalabilidad   :active,  t12, 2026-05-19, 1d
+
+    section Modelamiento y Despliegue
+    Script 05 - Entrenar XGBoost           :active,  t15, 2026-05-20, 1d
+    Desarrollar app Streamlit              :         t16, 2026-05-21, 1d
+    Desplegar en Render y docs             :         t17, 2026-05-21, 1d
+
+    section Preparacion Final
     Ensamblar Informe Tecnico 10-12 pag    :         t13, 2026-05-19, 2d
     Preparar y ensayar Demo en vivo        :         t14, 2026-05-21, 1d
 
@@ -35,17 +42,10 @@ gantt
     Defensa oral 15 min                    :milestone, m2, 2026-05-22, 0d
 ```
 
-## Dependencias del Pipeline Core
-
-```
-01_ingestion ──► 02_enmascaramiento ──► 03_validacion ──► 04_loading
-             └──► 02_limpieza ────────┘
-```
-
 ## Hitos clave
 
 | Fecha | Hito |
 |-------|------|
 | 2026-05-13 | Inicio del proyecto |
-| 2026-05-20 | Entrega de entregables (informe + codigo + Docker) |
+| 2026-05-20 | Entrega de entregables (informe + codigo + Docker + modelo) |
 | 2026-05-22 | Defensa oral (15 min, 3 integrantes) |

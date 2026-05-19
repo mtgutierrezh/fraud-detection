@@ -10,6 +10,8 @@ Este repositorio contiene un pipeline automatizado para la detección de fraude 
 - Docker (imagen base: python:3.10-slim)
 - Procesamiento: pandas, numpy
 - Validación: Great Expectations, pydantic
+- Modelado: XGBoost, scikit-learn
+- Despliegue: Streamlit, joblib
 - Logging: módulo estándar `logging`
 - Gestión del proyecto: Trello y GitHub
 
@@ -49,6 +51,9 @@ flowchart LR
 │   ├── 02_cleaning.py
 │   ├── 03_validation.py
 │   └── 04_loading.py
+│   └── 05_model_training.py
+├── models/             # Modelos entrenados (.joblib ignorado en git)
+├── app.py              # Interfaz web Streamlit
 ├── logs/              # Registros del pipeline (ignorado en git)
 ├── docs/              # Informe técnico y recursos PMBOK
 │   └── GANTT.md        # Carta Gantt con las 14 tareas WBS
@@ -100,6 +105,29 @@ docker run --rm \
   -v $(pwd)/logs:/app/logs \
   fraud-detection python src/04_loading.py
 ```
+
+6. Entrenar el modelo XGBoost:
+
+```bash
+docker run --rm \
+  -v $(pwd)/data:/app/data \
+  -v $(pwd)/logs:/app/logs \
+  -v $(pwd)/models:/app/models \
+  fraud-detection python src/05_model_training.py
+```
+
+7. Ejecutar la interfaz Streamlit:
+
+```bash
+streamlit run app.py
+```
+
+## Modelo (XGBoost)
+
+- **Algoritmo**: XGBoost Classifier con `scale_pos_weight` para manejar desbalance de clases
+- **Split**: cronologico (80/20) sobre `trans_date_trans_time` (previene data leakage)
+- **Metricas**: Recall + F1-Score (Accuracy invalido en datasets desbalanceados)
+- **Exportacion**: `models/xgboost_fraud_model.joblib`
 
 ## Dataset (resumen)
 
