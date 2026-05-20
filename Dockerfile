@@ -14,6 +14,9 @@ COPY app.py .
 
 COPY models/ ./models/
 
+COPY data/ ./data/
+
+
 RUN mkdir -p /app/logs /app/data/processed
 
 EXPOSE 8501

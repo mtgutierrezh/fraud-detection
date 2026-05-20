@@ -1,4 +1,5 @@
-data/
+data/processed/
+deta/raw/
 logs/
 .env
 .git
