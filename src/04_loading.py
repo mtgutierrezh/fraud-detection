@@ -1,13 +1,12 @@
 import sqlite3
-from pathlib import Path
 
 import pandas as pd
 
+from config import COLUMNA_FECHA, PROCESSED_DIR
 from logger_config import setup_logging
 
 logger = setup_logging(__name__)
 
-PROCESSED_DIR = Path(__file__).resolve().parent.parent / "data" / "processed"
 PROCESSED_DIR.mkdir(exist_ok=True)
 
 
