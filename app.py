@@ -12,6 +12,8 @@ META_PATH = MODELS_DIR / "model_metadata.json"
 SAMPLE_PATH = Path(__file__).resolve().parent / "data" / "sample_test.csv"
 
 THRESHOLD = 0.25
+AUC_ROC = None
+GINI = None
 
 CATEGORIAS = [
     "food_dining", "gas_transport", "grocery_net", "grocery_pos",
@@ -39,6 +41,8 @@ def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 
 @st.cache_resource
 def cargar_modelo_y_metadata():
+    global THRESHOLD, AUC_ROC, GINI
+
     if not MODEL_PATH.exists():
         st.error(f"Modelo no encontrado en {MODEL_PATH}. Ejecute 05_model_training.py primero.")
         st.stop()
@@ -50,6 +54,9 @@ def cargar_modelo_y_metadata():
             metadata = json.load(f)
         cat_means = metadata.get("cat_means", {})
         feature_cols = metadata.get("feature_columns", [])
+        THRESHOLD = metadata.get("threshold_business", 0.25)
+        AUC_ROC = metadata.get("auc_roc")
+        GINI = metadata.get("gini")
     else:
         cat_means = {}
         feature_cols = list(modelo.get_booster().feature_names) if modelo.get_booster().feature_names else []
@@ -102,7 +109,10 @@ st.title("Fraud Detection - Pipeline DataOps")
 st.markdown("Simula una transaccion y el modelo XGBoost predice si es **fraudulenta** o **legitima**.")
 
 modelo, cat_means, feature_cols = cargar_modelo_y_metadata()
-st.success(f"Modelo XGBoost cargado ({len(feature_cols)} features, umbral={THRESHOLD:.0%})")
+if AUC_ROC is not None and GINI is not None:
+    st.success(f"Modelo XGBoost cargado ({len(feature_cols)} features, umbral={THRESHOLD:.0%}, AUC={AUC_ROC:.4f}, Gini={GINI:.4f})")
+else:
+    st.success(f"Modelo XGBoost cargado ({len(feature_cols)} features, umbral={THRESHOLD:.0%})")
 
 tab1, tab2 = st.tabs(["Formulario Manual", "Carga de CSV"])
 
