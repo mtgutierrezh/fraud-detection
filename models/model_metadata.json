@@ -1,1 +1,41 @@
-{"cat_means": {"entertainment": 64.14528810177102, "food_dining": 50.937724938177666, "gas_transport": 63.564702296819796, "grocery_net": 53.789721884011534, "grocery_pos": 116.00002969736965, "health_fitness": 53.913689539577206, "home": 58.01883736591467, "kids_pets": 57.53874587883783, "misc_net": 79.05592725293664, "misc_pos": 61.807106888704254, "personal_care": 48.229086284672235, "shopping_net": 85.61749581289628, "shopping_pos": 77.55216683493185, "travel": 107.26200758931768}, "feature_columns": ["merchant", "category", "amt", "gender", "city", "state", "zip", "lat", "long", "city_pop", "job", "merch_lat", "merch_long", "dist_km", "hora", "dia_semana", "amt_vs_cat_mean"]}
+{
+  "cat_means": {
+    "entertainment": 64.14528810177102,
+    "food_dining": 50.937724938177666,
+    "gas_transport": 63.564702296819796,
+    "grocery_net": 53.789721884011534,
+    "grocery_pos": 116.00002969736965,
+    "health_fitness": 53.913689539577206,
+    "home": 58.01883736591467,
+    "kids_pets": 57.53874587883783,
+    "misc_net": 79.05592725293664,
+    "misc_pos": 61.807106888704254,
+    "personal_care": 48.229086284672235,
+    "shopping_net": 85.61749581289628,
+    "shopping_pos": 77.55216683493185,
+    "travel": 107.26200758931768
+  },
+  "feature_columns": [
+    "merchant",
+    "category",
+    "amt",
+    "gender",
+    "city",
+    "state",
+    "zip",
+    "lat",
+    "long",
+    "city_pop",
+    "job",
+    "merch_lat",
+    "merch_long",
+    "dist_km",
+    "hora",
+    "dia_semana",
+    "amt_vs_cat_mean"
+  ],
+  "auc_roc": 0.9762979118993136,
+  "gini": 0.9525958237986272,
+  "threshold_default": 0.5,
+  "threshold_business": 0.25
+}
