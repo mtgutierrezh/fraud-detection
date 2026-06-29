@@ -7,9 +7,11 @@ RAW_DIR = DATA_DIR / "raw"
 PROCESSED_DIR = DATA_DIR / "processed"
 MODELS_DIR = PROJECT_ROOT / "models"
 REPORTS_DIR = PROJECT_ROOT / "reports"
+LOGS_DIR = PROJECT_ROOT / "logs"
 
 MODELS_DIR.mkdir(exist_ok=True)
 REPORTS_DIR.mkdir(exist_ok=True)
+LOGS_DIR.mkdir(exist_ok=True)
 
 MODEL_PATH = MODELS_DIR / "xgboost_fraud_model.joblib"
 META_PATH = MODELS_DIR / "model_metadata.json"

@@ -33,6 +33,19 @@ services:
       pipeline:
         condition: service_completed_successfully
 
+  pipeline-telemetry:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+    command: python src/06_performance_telemetry.py
+    profiles:
+      - telemetry
+
   metabase:
     image: metabase/metabase:latest
     ports:
