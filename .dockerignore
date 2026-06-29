@@ -5,3 +5,4 @@ logs/
 .git
 __pycache__/
 *.pyc
+metabase-data/

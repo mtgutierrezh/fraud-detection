@@ -1,0 +1,48 @@
+services:
+
+  pipeline:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+    command: >
+      sh -c "
+        python src/01_ingestion.py &&
+        python src/02_cleaning.py &&
+        python src/03_validation.py &&
+        python src/04_loading.py &&
+        python src/05_model_training.py
+      "
+
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    environment:
+      - PORT=8501
+    depends_on:
+      pipeline:
+        condition: service_completed_successfully
+
+  metabase:
+    image: metabase/metabase:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./metabase-data:/metabase-data
+      - ./data:/data:ro
+    environment:
+      MB_DB_FILE: /metabase-data/metabase.db
+      JAVA_TIMEZONE: America/Santiago
+    depends_on:
+      pipeline:
+        condition: service_completed_successfully
