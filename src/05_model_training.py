@@ -1,4 +1,6 @@
 import json
+import sqlite3
+from datetime import datetime
 
 import joblib
 import matplotlib
@@ -6,6 +8,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import seaborn as sns
 from imblearn.over_sampling import SMOTE
 from sklearn.metrics import (
     auc,
@@ -26,6 +29,7 @@ from config import (
     META_PATH,
     MODEL_PATH,
     MODELS_DIR,
+    PROCESSED_DIR,
     REPORTS_DIR,
     SMOTE_K_NEIGHBORS,
     SMOTE_RANDOM_STATE,
@@ -290,6 +294,90 @@ def _plot_roc_curve(
     logger.info("Curva ROC guardada en %s", path)
 
 
+def _plot_correlation_matrix(X_encoded: pd.DataFrame, path: Path) -> None:
+    num_cols = X_encoded.select_dtypes(include=[np.number]).columns
+    if len(num_cols) < 2:
+        logger.warning("Menos de 2 columnas numericas, no se genera matriz de correlacion")
+        return
+
+    corr = X_encoded[num_cols].corr()
+    n_vars = len(num_cols)
+    fig_height = max(5, n_vars * 0.6)
+    fig_width = max(6, n_vars * 0.6)
+
+    fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+    im = ax.imshow(corr, interpolation="nearest", cmap=plt.cm.RdBu_r, vmin=-1, vmax=1)
+    plt.colorbar(im, ax=ax, shrink=0.8)
+
+    ax.set_xticks(range(n_vars))
+    ax.set_yticks(range(n_vars))
+    ax.set_xticklabels(num_cols, rotation=45, ha="right", fontsize=7)
+    ax.set_yticklabels(num_cols, fontsize=7)
+    ax.set_title("Matriz de Correlacion - Features Numericas", fontsize=13, pad=15)
+
+    for i in range(n_vars):
+        for j in range(n_vars):
+            val = corr.iloc[i, j]
+            color = "white" if abs(val) > 0.5 else "black"
+            ax.text(j, i, f"{val:.2f}", ha="center", va="center",
+                    color=color, fontsize=6, fontweight="bold")
+
+    fig.tight_layout()
+    fig.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    logger.info("Matriz de correlacion guardada en %s (%d variables)", path, n_vars)
+
+
+def enriquecer_sqlite(
+    df_test_raw: pd.DataFrame,
+    y_test: pd.Series,
+    y_proba: np.ndarray,
+    metricas: dict,
+) -> None:
+    db_path = PROCESSED_DIR / "fraud_detection.db"
+    if not db_path.exists():
+        logger.warning("Base SQLite no encontrada en %s. Omitiendo enrichment.", db_path)
+        return
+
+    logger.info("Enriqueciendo base SQLite con predicciones y metricas...")
+    conn = sqlite3.connect(str(db_path))
+
+    test_ids = df_test_raw.index[: len(y_test)]
+    preds_default = (y_proba >= THRESHOLD_DEFAULT).astype(int)
+    preds_business = (y_proba >= THRESHOLD_BUSINESS).astype(int)
+
+    df_pred = pd.DataFrame({
+        "row_id": test_ids,
+        "prob_fraude": y_proba,
+        "pred_default": preds_default,
+        "pred_business": preds_business,
+        "real": y_test.values,
+    })
+    df_pred.to_sql("predicciones", conn, if_exists="replace", index=False)
+    n_pred = len(df_pred)
+    logger.info("Tabla 'predicciones': %d registros insertados", n_pred)
+
+    ults = metricas["umbral_0_5"]
+    ultb = metricas["umbral_0_25"]
+
+    df_metricas = pd.DataFrame([{
+        "timestamp": datetime.now().isoformat(),
+        "auc_roc": round(metricas["auc_roc"], 6),
+        "gini": round(metricas["gini"], 6),
+        "accuracy_default": round(ults["accuracy"], 6),
+        "precision_default": round(ults["precision"], 6),
+        "recall_default": round(ults["recall"], 6),
+        "f1_default": round(ults["f1_score"], 6),
+        "accuracy_business": round(ultb["accuracy"], 6),
+        "precision_business": round(ultb["precision"], 6),
+        "recall_business": round(ultb["recall"], 6),
+        "f1_business": round(ultb["f1_score"], 6),
+    }])
+    df_metricas.to_sql("modelo_metricas", conn, if_exists="replace", index=False)
+    conn.close()
+    logger.info("Tabla 'modelo_metricas': metricas historicas almacenadas")
+
+
 def guardar_modelo(
     modelo: XGBClassifier,
     cat_means: dict,
@@ -323,12 +411,18 @@ def main() -> None:
         X_test, y_test, _ = preparar_features(df_test, cat_means)
 
         X_train = codificar_categoricas(X_train)
-        X_test = codificar_categoricas(X_test)
+        X_test_encoded = codificar_categoricas(X_test)
+
+        corr_path = REPORTS_DIR / "correlation_matrix.png"
+        _plot_correlation_matrix(X_test_encoded, corr_path)
 
         X_train, y_train = balancear_smote(X_train, y_train)
 
         modelo = entrenar_modelo(X_train, y_train)
-        metricas, fpr, tpr = evaluar_modelo(modelo, X_test, y_test)
+        metricas, fpr, tpr = evaluar_modelo(modelo, X_test_encoded, y_test)
+
+        y_proba = modelo.predict_proba(X_test_encoded)[:, 1]
+        enriquecer_sqlite(df_test, y_test, y_proba, metricas)
 
         for threshold in [THRESHOLD_DEFAULT, THRESHOLD_BUSINESS]:
             umbral_key = str(threshold).replace(".", "_")
