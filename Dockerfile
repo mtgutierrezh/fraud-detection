@@ -17,7 +17,7 @@ COPY models/ ./models/
 COPY data/ ./data/
 
 
-RUN mkdir -p /app/logs /app/data/processed
+RUN mkdir -p /app/logs /app/data/processed /app/reports
 
 EXPOSE 8501
 
