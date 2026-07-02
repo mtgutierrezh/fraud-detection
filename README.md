@@ -58,6 +58,9 @@ flowchart LR
 ├── docs/              # Informe técnico y recursos PMBOK
 │   └── GANTT.md        # Carta Gantt con las 14 tareas WBS
 ├── Dockerfile
+├── start.sh              # Script de entrada para Render/Docker
+├── render.yaml           # Blueprint para despliegue en Render
+├── .env.example          # Variables de entorno de ejemplo
 ├── requirements.txt
 └── .gitignore
 ```
@@ -134,6 +137,54 @@ streamlit run app.py
 - Filas: 555,719 transacciones
 - Columnas (23): trans_date_trans_time, cc_num, merchant, category, amt, first, last, gender, street, city, state, zip, lat, long, city_pop, job, dob, trans_num, unix_time, merch_lat, merch_long, is_fraud
 - Variable objetivo: `is_fraud` (0 = legítima, 1 = fraude)
+
+## Despliegue en Render (Web Service - Plan Gratuito)
+
+Este proyecto incluye configuración lista para desplegar en [Render](https://render.com) como Web Service usando Docker.
+
+### Usando Blueprint (render.yaml) — recomendado
+
+1. Crea una cuenta en [Render](https://dashboard.render.com/register) (GitHub OAuth).
+2. Sube este repositorio a GitHub si no lo está ya.
+3. En el Dashboard de Render, ve a **Blueprints** > **New Blueprint Instance**.
+4. Conecta tu repositorio de GitHub y Render detectará `render.yaml` automáticamente.
+5. Dale un nombre al Blueprint y haz clic en **Apply**.
+6. Render construirá la imagen Docker y desplegará el servicio. La URL será `https://fraud-detection.onrender.com`.
+
+### Manualmente (Render Dashboard)
+
+1. En el Dashboard, haz clic en **New** > **Web Service**.
+2. Conecta tu repositorio de GitHub.
+3. Configura:
+   - **Name**: `fraud-detection`
+   - **Region**: `Oregon` (o la más cercana)
+   - **Branch**: `main`
+   - **Runtime**: `Docker`
+   - **Plan**: `Free`
+4. En **Advanced** > **Environment Variables**, añade:
+   - `PORT` → `10000`
+5. Haz clic en **Create Web Service**.
+
+### Notas del plan gratuito
+
+| Aspecto | Detalle |
+|---------|---------|
+| RAM / CPU | 512 MB / 0.1 vCPU |
+| Inactividad | El servicio duerme tras 15 min sin tráfico |
+| Cold start | ~30–60 seg al recibir la primera solicitud tras dormir |
+| Horas/mes | 750 (suficiente para 24/7 si solo hay un servicio activo) |
+| Ancho de banda | 100 GB/mes incluidos |
+
+### Variables de entorno
+
+| Variable | Requerida | Descripción |
+|----------|-----------|-------------|
+| `PORT` | Sí | Puerto HTTP (Render asigna `10000` por defecto) |
+| `PYTHON_VERSION` | No | Solo si usas runtime Python (ej: `3.10`) |
+
+### Verificar el despliegue
+
+Una vez desplegado, visita `https://fraud-detection.onrender.com`. La app Streamlit cargará el modelo y estará lista para predecir transacciones.
 
 ## Privacidad y cumplimiento
 

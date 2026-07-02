@@ -21,4 +21,7 @@ RUN mkdir -p /app/logs /app/data/processed /app/reports
 
 EXPOSE 8501
 
-CMD ["sh", "-c", "streamlit run app.py --server.port=${PORT:-8501} --server.address=0.0.0.0"]
+COPY start.sh .
+RUN chmod +x start.sh
+
+CMD ["./start.sh"]

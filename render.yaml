@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: fraud-detection
+    plan: free
+    region: oregon
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: PORT
+        value: 10000
